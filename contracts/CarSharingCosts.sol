@@ -16,13 +16,16 @@ contract CarSharingCosts {
     mapping(string => Car) public cars;
     uint256 public gasPricePerLiter; // Gas price in wei per liter
 
-    event LogCosts(uint256 indexed segment, uint256 costPerPassenger);
+    event LogCosts(uint256 indexed segmentIndex, uint256 costPerPassenger);
 
     constructor(uint256 _gasPricePerLiter) {
+        require(_gasPricePerLiter > 0, "Gas price must be greater than 0");
         gasPricePerLiter = _gasPricePerLiter;
     }
 
     function setCarDetails(string memory brand, uint256 fuelConsumption, uint256 seats) public {
+        require(fuelConsumption > 0, "Fuel consumption must be greater than 0");
+        require(seats > 0, "Seats must be greater than 0");
         cars[brand] = Car(fuelConsumption, seats);
     }
 
@@ -36,9 +39,10 @@ contract CarSharingCosts {
 
     function calculateSegmentCost(uint256 distance, string memory brand, uint256 passengers) public view returns (uint256) {
         require(passengers > 0, "There must be at least one passenger");
-        require(cars[brand].seats >= passengers, "Not enough seats for all passengers");
+        Car storage car = cars[brand];
+        require(car.seats >= passengers, "Not enough seats for all passengers");
+        require(car.fuelConsumptionPer100km > 0, "Car not registered or invalid fuel consumption");
 
-        Car memory car = cars[brand];
         uint256 fuelNeeded = (distance * car.fuelConsumptionPer100km) / 100;
         uint256 totalCost = fuelNeeded * gasPricePerLiter;
         uint256 costPerPassenger = totalCost / passengers;

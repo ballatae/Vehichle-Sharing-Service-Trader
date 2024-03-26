@@ -193,7 +193,7 @@ async function checkLocationAndExecute() {
   );
 }
 
-// Exposing your functions to be accessible from your HTML
+// Exposing functions to be accessible from your HTML
 window.bundle = {
   connect,
   execute,

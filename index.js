@@ -149,8 +149,53 @@ async function execute() {
   await withdrawTo("1.0");
 }
 
+// Geolocation check
+async function checkLocationAndExecute() {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      const targetLatitude = 40.63756; // Target location latitude
+      const targetLongitude = 22.93762; // Target location longitude
+      const range = 0.01; // 10-meter range for location accuracy
+
+      if (
+        Math.abs(latitude - targetLatitude) < range &&
+        Math.abs(longitude - targetLongitude) < range
+      ) {
+        console.log(
+          "You are at the right location! Proceeding with Ethereum transaction..."
+        );
+
+        // Proceed with MetaMask connection and transactions
+        if (!provider) {
+          await connect();
+        }
+
+        if (provider) {
+          await execute();
+        } else {
+          console.log("Failed to initialize provider.");
+        }
+      } else {
+        console.log("You are not at the right location.");
+      }
+    },
+    () => {
+      alert("Unable to retrieve your location");
+    }
+  );
+}
+
 // Exposing your functions to be accessible from your HTML
 window.bundle = {
   connect,
   execute,
+  checkLocationAndExecute,
 };

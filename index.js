@@ -144,9 +144,22 @@ async function execute() {
     console.error("Provider is not initialized. Make sure to connect first.");
     return;
   }
-  console.log("Starting the transactions...");
-  await sendEtherToContract("1.0");
-  await withdrawTo("1.0");
+
+  // Convert Euros to Ether inside the execute function
+  const amountInEther = await convertEurosToEther();
+  if (amountInEther === null) {
+    // Handle the case where conversion fails or is aborted
+    console.error("Failed to convert Euros to Ether or no amount was entered.");
+    return;
+  }
+
+  const etherAmountString = amountInEther.toString();
+
+  console.log(`Starting the transactions with ${etherAmountString} ETH...`);
+
+  // Use the converted Ether amount for transactions
+  await sendEtherToContract(etherAmountString);
+  await withdrawTo(etherAmountString);
 }
 
 // Geolocation check
@@ -191,6 +204,30 @@ async function checkLocationAndExecute() {
       alert("Unable to retrieve your location");
     }
   );
+}
+
+// This function now just converts Euros to Ether and returns the ether amount
+// Ensuring the rate is interpreted as a number for calculation
+async function convertEurosToEther() {
+  const euroAmount = parseFloat(document.getElementById("euroAmount").value);
+  if (isNaN(euroAmount) || euroAmount <= 0) {
+    alert("Please enter a valid amount in Euros.");
+    return null;
+  }
+
+  try {
+    const rate = await getEuroToEthereumRate();
+    if (typeof rate !== "number" || isNaN(rate)) {
+      console.error("Invalid rate obtained from getEuroToEthereumRate.");
+      return null;
+    }
+    const amountInEther = euroAmount * rate;
+    console.log(`Calculated ${amountInEther} ETH from ${euroAmount} Euros.`);
+    return amountInEther;
+  } catch (error) {
+    console.error("Failed to convert Euros to Ether:", error);
+    return null;
+  }
 }
 
 // Exposing functions to be accessible from your HTML

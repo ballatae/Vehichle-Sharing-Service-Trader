@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meta Connect</title>
     <script src="./dist/bundle.js" type="text/javascript"></script>
-    <!-- <script src="./locationCheck.js" type="text/javascript"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.2/dist/ethers.min.js"></script>
 </head>
 
@@ -15,7 +14,7 @@
     <button id="executeButton" onclick="bundle.execute()">Execute</button>
     <button id="checkLocation" onclick="bundle.checkLocationAndExecute()">Check Location & Execute</button>
     <br>
-    <button id="convertButton" onclick="getEuroToEthereumRate()">Convert Euro to Ethereum</button>
+    <input id="euroAmount" type="number" placeholder="Amount in Euros" />
     <div id="rateDisplay">Euro to Ethereum</div>
 
     <script src="./currencyConverter.js" type="text/javascript"></script>

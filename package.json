@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha --require esm test-bootstrap.js",
-    "build": "webpack --mode production"
+    "build": "webpack"
   },
   "keywords": [],
   "author": "",

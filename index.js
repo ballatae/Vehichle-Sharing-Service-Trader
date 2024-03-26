@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 
-const contractAddress = "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318";
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const recipientAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
 // ABI for EthereumTransfer contract

@@ -174,8 +174,8 @@ async function checkLocationAndExecute() {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
 
-      const targetLatitude = 40.63756; // Target location latitude
-      const targetLongitude = 22.93762; // Target location longitude
+      const targetLatitude = 40.63056; // Target location latitude
+      const targetLongitude = 22.94384; // Target location longitude
       const range = 0.01; // 10-meter range for location accuracy
 
       if (

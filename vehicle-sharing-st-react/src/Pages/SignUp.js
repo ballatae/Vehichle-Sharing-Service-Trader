@@ -5,13 +5,9 @@ function Signup() {
     username: "",
   });
   const [password, setPassword] = useState("");
-  const [userAddress, setUserAddress] = useState("");
+  const [userAddress, setUserAddress] = useState(""); // This will store the address from the server
 
   const handleSignup = async () => {
-    //!Simulate assigning a Hardhat address to the user
-    const hardhatAddress = "0x..."; // Replace with an actual from metamask
-    setUserAddress(hardhatAddress);
-
     try {
       const response = await fetch("http://localhost:3001/api/signup", {
         method: "POST",
@@ -21,14 +17,23 @@ function Signup() {
         body: JSON.stringify({
           username: userData.username,
           password: password,
-          address: hardhatAddress, //! Using the hard-coded address for demonstration
+          // No need to send the address from here, the server will generate it
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
+        // Use the address returned from the server
+        setUserAddress(result.address); // Assuming the server includes the address in its response
         alert(result.message); // "User created successfully"
-        //? clear the form or redirect the user to another page here
+        // You might want to clear the form or redirect the user here
+
+        // Optionally save user data and address to local storage
+        localStorage.setItem("userAddress", result.address); // Save the address from the server
+        localStorage.setItem("userData", JSON.stringify(userData));
+
+        // Inform the user to import the address into MetaMask
+        alert("Please import the assigned address into MetaMask to continue.");
       } else {
         const error = await response.json();
         alert(`Signup failed: ${error.message}`);
@@ -37,13 +42,6 @@ function Signup() {
       console.error("Error during signup:", error);
       alert("An error occurred, please try again.");
     }
-
-    // Save user data and address to local storage or send to your backend
-    localStorage.setItem("userAddress", hardhatAddress);
-    localStorage.setItem("userData", JSON.stringify(userData));
-
-    // Inform the user to import the address into MetaMask
-    alert("Please import the assigned address into MetaMask to continue.");
   };
 
   return (

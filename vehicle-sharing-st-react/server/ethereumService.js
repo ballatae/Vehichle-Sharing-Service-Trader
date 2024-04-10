@@ -122,7 +122,4 @@ const preFundedAccounts = [
   },
 ];
 
-
-
-module.exports = {
-};
+module.exports = { preFundedAccounts };

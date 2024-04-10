@@ -17,23 +17,22 @@ function Signup() {
         body: JSON.stringify({
           username: userData.username,
           password: password,
-          // No need to send the address from here, the server will generate it
+          // address field is not needed, as the Ethereum address and key are generated server-side
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        // Use the address returned from the server
-        setUserAddress(result.address); // Assuming the server includes the address in its response
+        setUserAddress(result.ethereumAddress); // Adjusted to match expected response
         alert(result.message); // "User created successfully"
-        // You might want to clear the form or redirect the user here
 
-        // Optionally save user data and address to local storage
-        localStorage.setItem("userAddress", result.address); // Save the address from the server
-        localStorage.setItem("userData", JSON.stringify(userData));
+        // Consider security implications of storing sensitive information on the client side
+        localStorage.setItem("userEthereumAddress", result.ethereumAddress);
 
-        // Inform the user to import the address into MetaMask
-        alert("Please import the assigned address into MetaMask to continue.");
+        // Inform the user
+        alert(
+          "Please import the assigned Ethereum address into MetaMask to continue."
+        );
       } else {
         const error = await response.json();
         alert(`Signup failed: ${error.message}`);

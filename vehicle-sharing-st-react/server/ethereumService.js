@@ -122,19 +122,7 @@ const preFundedAccounts = [
   },
 ];
 
-async function getNextAccount(isAssignedCallback) {
-  for (let i = 0; i < preFundedAccounts.length; i++) {
-    const isAssigned = await isAssignedCallback(i);
-    if (!isAssigned) {
-      return {
-        ...preFundedAccounts[i],
-        accountIndex: i,
-      };
-    }
-  }
-  throw new Error("No more pre-funded accounts available.");
-}
+
 
 module.exports = {
-  getNextAccount,
 };

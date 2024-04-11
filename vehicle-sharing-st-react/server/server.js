@@ -15,8 +15,23 @@ const mongoDBUri = process.env.MONGO_DB_URI;
 
 mongoose
   .connect(mongoDBUri)
-  .then(() => console.log("MongoDB connected!"))
+  .then(() => {
+    console.log("MongoDB connected!");
+    initializeCounter();
+  })
   .catch((err) => console.error("Could not connect to MongoDB:", err));
+
+async function initializeCounter() {
+  try {
+    const counter = await Counter.findById("userAccountIndex");
+    if (!counter) {
+      const newCounter = new Counter({ _id: "userAccountIndex", seq: 0 });
+      await newCounter.save();
+    }
+  } catch (err) {
+    console.error("Error initializing counter:", err);
+  }
+}
 
 // Define a Mongoose schema and model for User
 const userSchema = new mongoose.Schema({
@@ -25,7 +40,14 @@ const userSchema = new mongoose.Schema({
   address: String,
   ethereumAddress: String,
   ethereumPrivateKey: String,
+  accountIndex: { type: Number, unique: true }, // Add this line
 });
+const counterSchema = new mongoose.Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 },
+});
+
+const Counter = mongoose.model("Counter", counterSchema);
 
 const User = mongoose.model("User", userSchema);
 
@@ -56,6 +78,17 @@ app.post("/api/signup", async (req, res) => {
         .json({ message: "No available Ethereum accounts" });
     }
 
+    const getNextSequenceValue = async (sequenceName) => {
+      const counter = await Counter.findOneAndUpdate(
+        { _id: sequenceName },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+      return counter.seq;
+    };
+
+    const accountIndex = await getNextSequenceValue("userAccountIndex");
+
     // Create a new user with the Ethereum account
     const user = new User({
       username,
@@ -63,7 +96,9 @@ app.post("/api/signup", async (req, res) => {
       address,
       ethereumAddress: availableAccount.address,
       ethereumPrivateKey: availableAccount.privateKey,
+      accountIndex,
     });
+
     await user.save();
 
     res.status(201).json({

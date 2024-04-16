@@ -36,6 +36,7 @@ async function initializeCounter() {
 // Define a Mongoose schema and model for User
 const userSchema = new mongoose.Schema({
   username: String,
+  email: { type: String, unique: true, required: true },
   hashedPassword: String,
   address: String,
   ethereumAddress: String,
@@ -55,7 +56,7 @@ app.use(express.json());
 
 app.post("/api/signup", async (req, res) => {
   try {
-    const { username, password, address } = req.body;
+    const { username, password, email, address } = req.body;
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -92,6 +93,7 @@ app.post("/api/signup", async (req, res) => {
     // Create a new user with the Ethereum account
     const user = new User({
       username,
+      email,
       hashedPassword,
       address,
       ethereumAddress: availableAccount.address,

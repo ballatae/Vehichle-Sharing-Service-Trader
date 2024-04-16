@@ -1,8 +1,12 @@
+import "./SignUp.css";
 import React, { useState } from "react";
+import LogIn from "./LogIn";
 
 function Signup() {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [userData, setUserData] = useState({
     username: "",
+    email: "",
   });
   const [password, setPassword] = useState("");
   const [userAddress, setUserAddress] = useState(""); // This will store the address from the server
@@ -16,6 +20,7 @@ function Signup() {
         },
         body: JSON.stringify({
           username: userData.username,
+          email: userData.email,
           password: password,
           // address field is not needed, as the Ethereum address and key are generated server-side
         }),
@@ -43,23 +48,49 @@ function Signup() {
     }
   };
 
+  if (isLoggingIn) {
+    return <LogIn />;
+  }
+
   return (
-    <div>
+    <div className="signup-div">
+      <div className="avatar"></div>
+      <label for="username">Username:</label>
       <input
+        id="username"
+        className="username"
         type="text"
-        placeholder="Username"
+        // placeholder="Username"
         value={userData.username}
         onChange={(e) => setUserData({ ...userData, username: e.target.value })}
       />
       <br />
+      <label htmlFor="email">Email:</label>
       <input
+        id="email"
+        className="email"
+        type="email"
+        value={userData.email}
+        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+      />
+      <br />
+      <label for="password">Password:</label>
+      <input
+        id="password"
+        className="password"
         type="password"
-        placeholder="Password"
+        // placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <br />
-      <button onClick={handleSignup}>Sign Up</button>
+      <button className="signup" onClick={handleSignup}>
+        Sign Up
+      </button>
+
+      <button className="link-button" onClick={() => setIsLoggingIn(true)}>
+        Already have an account? Log In
+      </button>
     </div>
   );
 }

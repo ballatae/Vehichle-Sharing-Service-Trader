@@ -4,6 +4,7 @@ import Home from "./Pages/Home";
 import SignUp from "./Pages/SignUp";
 import LogIn from "./Pages/LogIn";
 import Layout from "./Pages/Layout";
+import EthereumDetails from "./Pages/EthereumDetails";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="/login" element={<LogIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/ethereum-details" element={<EthereumDetails />} />
         </Routes>
       </BrowserRouter>
     </div>

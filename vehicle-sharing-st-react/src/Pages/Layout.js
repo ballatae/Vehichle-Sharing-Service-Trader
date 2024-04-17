@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function Layout() {
   return (
     <div className="layout-div">
-      <h1>Welcome to Our Application</h1>
+      <h1>Vehicle Sharing Service Trader</h1>
       <div className="navigation-buttons">
         <Link to="/login">
           <button>Log In</button>

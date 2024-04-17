@@ -146,8 +146,8 @@ app.post("/api/login", async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token: token,
-      ethereumAddress: user.ethereumAddress, // Add the Ethereum address to the response
-      // Do NOT include the Ethereum private key here
+      ethereumAddress: user.ethereumAddress,
+      ethereumPrivateKey: user.ethereumPrivateKey,
     });
   } catch (error) {
     console.error(error);

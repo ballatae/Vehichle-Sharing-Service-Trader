@@ -1,12 +1,20 @@
 import React from "react";
-import { ethers } from "ethers";
+import { useLocation, useNavigate } from "react-router-dom";
 
-function EthereumDetails({ ethereumAddress, ethereumPrivateKey, onContinue }) {
-  // Function to connect to MetaMask
+function EthereumDetails({ onContinue }) {
+  const location = useLocation();
+  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const { ethereumAddress, ethereumPrivateKey } = location.state || {};
+
+  console.log(
+    "Received in EthereumDetails:",
+    ethereumAddress,
+    ethereumPrivateKey
+  );
+
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== "undefined") {
       try {
-        // Request account access
         await window.ethereum.request({ method: "eth_requestAccounts" });
         alert("MetaMask is connected.");
       } catch (error) {
@@ -21,10 +29,10 @@ function EthereumDetails({ ethereumAddress, ethereumPrivateKey, onContinue }) {
   };
 
   const handleContinue = () => {
-    console.log("Continuing to Home..."); // Debugging line
+    console.log("Continuing to Home...");
     setTimeout(() => {
-      onContinue();
-    }, 1000); // Delays the continuation by 1 second
+      navigate("/home"); // Redirect to the home page
+    }, 1000);
   };
 
   return (

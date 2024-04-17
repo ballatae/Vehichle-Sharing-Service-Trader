@@ -1,15 +1,21 @@
 import "./SignUp.css";
 import React, { useState } from "react";
 import LogIn from "./LogIn";
+import EthereumDetails from "./EthereumDetails";
+import Home from "./Home";
+import { Link } from "react-router-dom";
 
 function Signup() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSignedUp, setIsSignedUp] = useState(false);
+  const [isAtHome, setIsAtHome] = useState(false);
   const [userData, setUserData] = useState({
     username: "",
     email: "",
   });
   const [password, setPassword] = useState("");
-  const [userAddress, setUserAddress] = useState(""); // This will store the address from the server
+  const [userAddress, setUserAddress] = useState("");
+  const [userPrivateKey, setUserPrivateKey] = useState("");
 
   const handleSignup = async () => {
     try {
@@ -22,19 +28,16 @@ function Signup() {
           username: userData.username,
           email: userData.email,
           password: password,
-          // address field is not needed, as the Ethereum address and key are generated server-side
         }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        setUserAddress(result.ethereumAddress); // Adjusted to match expected response
+        setUserAddress(result.ethereumAddress);
+        setUserPrivateKey(result.ethereumPrivateKey);
+        setIsSignedUp(true);
         alert(result.message); // "User created successfully"
-
-        // Consider security implications of storing sensitive information on the client side
         localStorage.setItem("userEthereumAddress", result.ethereumAddress);
-
-        // Inform the user
         alert(
           "Please import the assigned Ethereum address into MetaMask to continue."
         );
@@ -48,8 +51,28 @@ function Signup() {
     }
   };
 
+  console.log("isSignedUp:", isSignedUp, "isAtHome:", isAtHome);
+
   if (isLoggingIn) {
     return <LogIn />;
+  }
+
+  if (isSignedUp && !isAtHome) {
+    return (
+      <EthereumDetails
+        ethereumAddress={userAddress}
+        ethereumPrivateKey={userPrivateKey}
+        onContinue={() => {
+          console.log("Setting isAtHome to true"); // Debugging line
+          setIsAtHome(true);
+        }}
+      />
+    );
+  }
+
+  if (isAtHome) {
+    console.log("Navigating to Home"); // Debugging line
+    return <Home />;
   }
 
   return (
@@ -88,9 +111,9 @@ function Signup() {
         Sign Up
       </button>
 
-      <button className="link-button" onClick={() => setIsLoggingIn(true)}>
-        Already have an account? Log In
-      </button>
+      <p>
+        Already have an account? <Link to="/login">Log In</Link>
+      </p>
     </div>
   );
 }

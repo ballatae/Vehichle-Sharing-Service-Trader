@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-function Login() {
+function LogIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -20,10 +22,13 @@ function Login() {
       if (response.ok) {
         const result = await response.json();
         alert(result.message); // "Login successful"
-
-        // Here, you could save the user's token to localStorage and redirect them
-        localStorage.setItem("token", result.token); // Assuming the token is returned
-        // Redirect the user to their dashboard or another page
+        localStorage.setItem("token", result.token);
+        navigate("/ethereum-details", {
+          state: {
+            ethereumAddress: result.ethereumAddress,
+            ethereumPrivateKey: result.ethereumPrivateKey,
+          },
+        });
       } else {
         const error = await response.json();
         alert(`Login failed: ${error.message}`);
@@ -35,24 +40,28 @@ function Login() {
   };
 
   return (
-    <div>
+    <div className="login-div">
+      <div className="avatar"></div>
+      <label htmlFor="username">Username:</label>
       <input
         type="text"
-        placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <br />
+      <label htmlFor="password">Password:</label>
       <input
         type="password"
-        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
       <br />
       <button onClick={handleLogin}>Log In</button>
+      <p>
+        Don't have an account? <Link to="/signup">Sign Up</Link>
+      </p>
     </div>
   );
 }
 
-export default Login;
+export default LogIn;

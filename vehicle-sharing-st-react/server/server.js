@@ -142,8 +142,13 @@ app.post("/api/login", async (req, res) => {
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
-    // Respond with a success message and token
-    res.status(200).json({ message: "Login successful", token: token });
+    // Respond with a success message, token, and Ethereum address
+    res.status(200).json({
+      message: "Login successful",
+      token: token,
+      ethereumAddress: user.ethereumAddress, // Add the Ethereum address to the response
+      // Do NOT include the Ethereum private key here
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

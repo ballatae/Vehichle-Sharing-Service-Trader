@@ -140,33 +140,54 @@ function Home() {
     }
   }
 
-  async function executeTransaction() {
+  async function sendEthersToContract(amountInEther) {
+    if (!provider) {
+      alert("Please connect to MetaMask first.");
+      return;
+    }
+    const signer = provider.getSigner();
+    const transactionResponse = await signer.sendTransaction({
+      to: contractAddress,
+      value: parseEther(amountInEther.toString()),
+    });
+    await transactionResponse.wait();
+    console.log(`Sent ${amountInEther} ETH to the contract.`);
+  }
+
+  async function withdrawTo(amountInEther) {
     if (!provider || !contract) {
       alert("Please connect to MetaMask and load the contract.");
       return;
     }
+    try {
+      const transactionResponse = await contract.withdrawTo(
+        recipientAddress,
+        parseEther(amountInEther.toString())
+      );
+      await transactionResponse.wait();
+      console.log(`Withdrawal of ${amountInEther} ETH to ${recipientAddress} was successful.`);
+    } catch (error) {
+      console.error("Withdrawal failed:", error);
+      alert("Withdrawal failed. Check the console for more information.");
+    }
+  }
 
+  async function executeTransaction() {
     if (!amountInEuros) {
       alert("Please enter a valid amount in Euros.");
       return;
     }
-
     const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
     if (isNaN(amountInEther)) {
       alert("Invalid amount. Please check your input and the exchange rate.");
       return;
     }
 
-    try {
-      const transactionResponse = await contract.withdrawTo(recipientAddress, parseEther(amountInEther.toString()));
-      await transactionResponse.wait();
-      console.log(`Transaction successful: ${amountInEther} ETH sent.`);
-      alert(`Transaction successful: ${amountInEther} ETH sent.`);
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      alert("Transaction failed. Check the console for more information.");
-    }
+    await sendEthersToContract(amountInEther.toFixed(18)); // Adjust decimal precision as needed
+    await withdrawTo(amountInEther.toFixed(18)); // Adjust decimal precision as needed
+    console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
   }
+  
 
   async function checkLocationAndExecute() {
     if (!navigator.geolocation) {
@@ -177,10 +198,12 @@ function Home() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        const targetLatitude = 40.63756;
-        const targetLongitude = 22.93762;
+        const targetLatitude = 40.63979308054933;
+        const targetLongitude = 22.93696029422671;
         const range = 0.01;
 
+        //egnatia 7 40.63979308054933, 22.93696029422671 
+        // sofou building 40.63756, 22.93762
         if (
           Math.abs(latitude - targetLatitude) < range &&
           Math.abs(longitude - targetLongitude) < range
@@ -204,6 +227,10 @@ function Home() {
       }
     );
   }
+
+
+  
+
 
   function handleAmountChange(event) {
     setAmountInEuros(event.target.value);

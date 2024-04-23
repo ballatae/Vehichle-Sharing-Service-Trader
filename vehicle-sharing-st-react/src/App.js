@@ -6,6 +6,7 @@ import LogIn from "./Pages/LogIn";
 import Layout from "./Pages/Layout";
 import EthereumDetails from "./Pages/EthereumDetails";
 import RolesSelection from "./Pages/RoleSelection";
+import ManualTest from "./Pages/ManualTest";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/ethereum-details" element={<EthereumDetails />} />
           <Route path="/role-selection" element={<RolesSelection />} />
+          <Route path="/manualTest" element={<ManualTest />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -109,7 +109,8 @@ app.post("/api/signup", async (req, res) => {
     );
 
     await user.save();
-    // insted of saving to my database
+    // send data to gent
+    // ? post request to endpoint adduser (gent) json below
 
     res.status(201).json({
       message: "User created successfully",
@@ -125,9 +126,7 @@ app.post("/api/signup", async (req, res) => {
 });
 
 const jwt = require("jsonwebtoken");
-
 // Secret key for JWT signing and encryption
-// Store this in a safe place and do not expose it in your code directly
 const jwtSecretKey = process.env.JWT_SECRET;
 
 function authenticateToken(req, res, next) {
@@ -209,6 +208,19 @@ app.post("/api/update-role", authenticateToken, async (req, res) => {
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
+  }
+});
+
+app.get("/api/drivers", async (req, res) => {
+  try {
+    const drivers = await User.find(
+      { role: "driver" },
+      "ethereumAddress"
+    ).lean();
+    res.json(drivers);
+  } catch (error) {
+    console.error("Failed to fetch drivers:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

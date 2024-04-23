@@ -3,10 +3,11 @@ import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { parseEther } from "@ethersproject/units";
 import { getEuroToEthereumRate } from "./currencyConverter";
+import axios from "axios";
 
 // Constants
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const recipientAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
 const abi = [
   {
     anonymous: false,
@@ -102,23 +103,51 @@ const abi = [
   },
 ];
 
+
 function ManualTest() {
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [amountInEuros, setAmountInEuros] = useState("");
   const [euroToEtherRate, setEuroToEtherRate] = useState(null);
+  const [recipientAddress, setRecipientAddress] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [recipientAddresses, setRecipientAddresses] = useState([]);
 
   useEffect(() => {
-    const loadRate = async () => {
+    async function loadRateAndDrivers() {
       try {
         const rate = await getEuroToEthereumRate();
         setEuroToEtherRate(rate);
-      } catch (error) {
-        console.error("Failed to load the exchange rate:", error);
+      } catch (rateError) {
+        console.error("Failed to load the exchange rate:", rateError);
       }
-    };
-    loadRate();
+
+      try {
+        const response = await axios.get("http://localhost:3001/api/drivers");
+        setRecipientAddresses(response.data);
+      } catch (driversError) {
+        console.error("Failed to fetch driver addresses:", driversError);
+      }
+    }
+    loadRateAndDrivers();
   }, []);
+
+  
+
+  // Dropdown change handler
+  function handleRecipientChange(event) {
+    setRecipientAddress(event.target.value);
+  }
+
+  // Coordinate input handlers
+  function handleLatitudeChange(event) {
+    setLatitude(event.target.value);
+  }
+
+  function handleLongitudeChange(event) {
+    setLongitude(event.target.value);
+  }
 
   async function connect() {
     if (window.ethereum) {
@@ -186,7 +215,6 @@ function ManualTest() {
     await withdrawTo(amountInEther.toFixed(18)); // Adjust decimal precision as needed
     console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
   }
-  
 
   async function checkLocationAndExecute() {
     if (!navigator.geolocation) {
@@ -196,16 +224,13 @@ function ManualTest() {
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
-        const targetLatitude = 40.63979308054933;
-        const targetLongitude = 22.93696029422671;
+        const userLatitude = position.coords.latitude;
+        const userLongitude = position.coords.longitude;
         const range = 0.1;
 
-        //egnatia 7 40.63979308054933, 22.93696029422671 
-        // sofou building 40.63756, 22.93762
         if (
-          Math.abs(latitude - targetLatitude) < range &&
-          Math.abs(longitude - targetLongitude) < range
+          Math.abs(userLatitude - parseFloat(latitude)) < range &&
+          Math.abs(userLongitude - parseFloat(longitude)) < range
         ) {
           console.log("You are at the right location! Proceeding with Ethereum transaction...");
           if (!provider) {
@@ -227,14 +252,6 @@ function ManualTest() {
     );
   }
 
-
-  
-
-
-  function handleAmountChange(event) {
-    setAmountInEuros(event.target.value);
-  }
-
   return (
     <div>
       <button onClick={connect}>Connect</button>
@@ -245,12 +262,32 @@ function ManualTest() {
         type="number"
         placeholder="Amount in Euros"
         value={amountInEuros}
-        onChange={handleAmountChange}
+        onChange={(e) => setAmountInEuros(e.target.value)}
+      />
+      <select value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}>
+        <option value="">Select Recipient (Driver)</option>
+        {recipientAddresses.map((addr) => (
+          <option key={addr.ethereumAddress} value={addr.ethereumAddress}>
+            {addr.ethereumAddress}
+          </option>
+        ))}
+      </select>
+      <input
+        type="text"
+        placeholder="Latitude"
+        value={latitude}
+        onChange={(e) => setLatitude(e.target.value)}
+      />
+      <input
+        type="text"
+        placeholder="Longitude"
+        value={longitude}
+        onChange={(e) => setLongitude(e.target.value)}
       />
       <div>Rate: {euroToEtherRate ? `${euroToEtherRate} ETH per Euro` : "Loading..."}</div>
     </div>
   );
 }
 
-export default ManualTest;
 
+export default ManualTest;

@@ -41,7 +41,8 @@ const userSchema = new mongoose.Schema({
   address: String,
   ethereumAddress: String,
   ethereumPrivateKey: String,
-  accountIndex: { type: Number, unique: true }, // Add this line
+  role: { type: String, enum: ["driver", "passenger"], default: "passenger" },
+  accountIndex: { type: Number, unique: true },
 });
 const counterSchema = new mongoose.Schema({
   _id: { type: String, required: true },
@@ -101,11 +102,21 @@ app.post("/api/signup", async (req, res) => {
       accountIndex,
     });
 
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      jwtSecretKey,
+      { expiresIn: "2h" }
+    );
+
     await user.save();
+    // insted of saving to my database
 
     res.status(201).json({
       message: "User created successfully",
       ethereumAddress: availableAccount.address,
+      ethereumPrivateKey: availableAccount.privateKey,
+      token,
+      userId: user._id,
     });
   } catch (error) {
     console.error(error);
@@ -118,6 +129,26 @@ const jwt = require("jsonwebtoken");
 // Secret key for JWT signing and encryption
 // Store this in a safe place and do not expose it in your code directly
 const jwtSecretKey = process.env.JWT_SECRET;
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // "Bearer TOKEN"
+
+  if (!token) {
+    return res.status(401).send({ message: "No token provided." });
+  }
+
+  // Updated jwt.verify call with logging
+  jwt.verify(token, jwtSecretKey, (err, decoded) => {
+    console.log("Decoded token:", decoded); // Log the decoded token for debugging
+    if (err) {
+      console.error("Token verification error:", err); // Log any error if the token is not valid
+      return res.status(403).send({ message: "Token is not valid." });
+    }
+    req.user = decoded; // If no error, set the decoded token to req.user
+    next(); // Continue to the next middleware or endpoint function
+  });
+}
 
 app.post("/api/login", async (req, res) => {
   try {
@@ -145,6 +176,7 @@ app.post("/api/login", async (req, res) => {
     // Respond with a success message, token, and Ethereum address
     res.status(200).json({
       message: "Login successful",
+      id: user._id,
       token: token,
       ethereumAddress: user.ethereumAddress,
       ethereumPrivateKey: user.ethereumPrivateKey,
@@ -152,6 +184,31 @@ app.post("/api/login", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/update-role", authenticateToken, async (req, res) => {
+  const { role } = req.body;
+  const userId = req.user.id; // Retrieved from decoded token
+
+  console.log("Attempting to update role for userID:", userId, "to", role);
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("User not found for ID:", userId);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.role = role;
+    await user.save();
+    console.log("Role updated successfully for userID:", userId);
+    res.status(200).json({ message: "Role updated successfully" });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
 

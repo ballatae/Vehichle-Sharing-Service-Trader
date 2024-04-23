@@ -4,13 +4,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 function EthereumDetails({ onContinue }) {
   const location = useLocation();
   const navigate = useNavigate(); // Initialize the useNavigate hook
-  const { ethereumAddress, ethereumPrivateKey } = location.state || {};
+  const { ethereumAddress, ethereumPrivateKey, userId } = location.state || {};
 
-  console.log(
-    "Received in EthereumDetails:",
-    ethereumAddress,
-    ethereumPrivateKey
-  );
+  console.log("Received State in EthereumDetails:", location.state);
+
+   console.log("UserID from state:", userId);
+  
 
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== "undefined") {
@@ -29,9 +28,13 @@ function EthereumDetails({ onContinue }) {
   };
 
   const handleContinue = () => {
-    console.log("Continuing to Home...");
+    console.log("Navigating with userId:", userId);
     setTimeout(() => {
-      navigate("/home"); // Redirect to the home page
+      navigate("/role-selection", {
+        state: {
+          userId: userId
+        }
+      })
     }, 1000);
   };
 

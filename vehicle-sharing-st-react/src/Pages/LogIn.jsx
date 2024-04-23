@@ -25,6 +25,7 @@ function LogIn() {
         localStorage.setItem("token", result.token);
         navigate("/ethereum-details", {
           state: {
+            userId: result.userId,
             ethereumAddress: result.ethereumAddress,
             ethereumPrivateKey: result.ethereumPrivateKey,
           },

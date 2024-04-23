@@ -1,9 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { parseEther } from "@ethersproject/units";
+import { getEuroToEthereumRate } from "./currencyConverter";
 
-// ABI for EthereumTransfer contract
+// Constants
+const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const recipientAddress = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 const abi = [
   {
     anonymous: false,
@@ -100,42 +104,67 @@ const abi = [
 ];
 
 function Home() {
-  let provider, contract;
+  const [provider, setProvider] = useState(null);
+  const [contract, setContract] = useState(null);
+  const [amountInEuros, setAmountInEuros] = useState("");
+  const [euroToEtherRate, setEuroToEtherRate] = useState(null);
 
-  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  useEffect(() => {
+    const loadRate = async () => {
+      try {
+        const rate = await getEuroToEthereumRate();
+        setEuroToEtherRate(rate);
+      } catch (error) {
+        console.error("Failed to load the exchange rate:", error);
+      }
+    };
+    loadRate();
+  }, []);
 
   async function connect() {
-    if (!window.ethereum) {
-      alert("Please install MetaMask!");
-      return;
-    }
-    provider = new Web3Provider(window.ethereum);
-    contract = new Contract(contractAddress, abi, provider); // Create a contract instance
-    try {
-      await provider.send("eth_requestAccounts", []);
-      console.log("MetaMask is connected");
-    } catch (error) {
-      console.error("User denied account access");
+    if (window.ethereum) {
+      try {
+        const web3Provider = new Web3Provider(window.ethereum);
+        const signer = web3Provider.getSigner();
+        const contractInstance = new Contract(contractAddress, abi, signer);
+        await web3Provider.send("eth_requestAccounts", []);
+        console.log("MetaMask is connected");
+        setProvider(web3Provider);
+        setContract(contractInstance);
+      } catch (error) {
+        console.error("Error connecting to MetaMask:", error);
+        alert("Error connecting to MetaMask. Check the console for more information.");
+      }
+    } else {
+      alert("Please install MetaMask to use this app.");
     }
   }
 
-  async function execute() {
+  async function executeTransaction() {
     if (!provider || !contract) {
-      alert("Please connect to MetaMask and load the contract first.");
+      alert("Please connect to MetaMask and load the contract.");
+      return;
+    }
+
+    if (!amountInEuros) {
+      alert("Please enter a valid amount in Euros.");
+      return;
+    }
+
+    const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
+    if (isNaN(amountInEther)) {
+      alert("Invalid amount. Please check your input and the exchange rate.");
       return;
     }
 
     try {
-      const signer = provider.getSigner();
-      contract = contract.connect(signer);
-      const tx = await contract.withdrawTo(
-        "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        parseEther("0.1")
-      );
-      await tx.wait();
-      console.log("Transaction complete!", tx);
+      const transactionResponse = await contract.withdrawTo(recipientAddress, parseEther(amountInEther.toString()));
+      await transactionResponse.wait();
+      console.log(`Transaction successful: ${amountInEther} ETH sent.`);
+      alert(`Transaction successful: ${amountInEther} ETH sent.`);
     } catch (error) {
       console.error("Transaction failed:", error);
+      alert("Transaction failed. Check the console for more information.");
     }
   }
 
@@ -150,25 +179,24 @@ function Home() {
         const { latitude, longitude } = position.coords;
         const targetLatitude = 40.63756;
         const targetLongitude = 22.93762;
-        const range = 0.01; // Adjusted range
+        const range = 0.01;
 
         if (
           Math.abs(latitude - targetLatitude) < range &&
           Math.abs(longitude - targetLongitude) < range
         ) {
-          console.log(
-            "You are at the right location! Proceeding with Ethereum transaction..."
-          );
+          console.log("You are at the right location! Proceeding with Ethereum transaction...");
           if (!provider) {
             await connect();
           }
           if (provider) {
-            await execute();
+            await executeTransaction();
           } else {
             console.error("Failed to initialize provider.");
           }
         } else {
           console.error("You are not at the right location.");
+          alert("You are not at the right location.");
         }
       },
       () => {
@@ -177,22 +205,26 @@ function Home() {
     );
   }
 
-  useEffect(() => {
-    // Any initial setup if necessary
-  }, []);
+  function handleAmountChange(event) {
+    setAmountInEuros(event.target.value);
+  }
 
   return (
     <div>
       <button onClick={connect}>Connect</button>
-      <button onClick={execute}>Execute</button>
-      <button onClick={checkLocationAndExecute}>
-        Check Location & Execute
-      </button>
+      <button onClick={executeTransaction}>Execute Transaction</button>
+      <button onClick={checkLocationAndExecute}>Check Location & Execute</button>
       <br />
-      <input type="number" placeholder="Amount in Euros" />
-      <div>Euro to Ethereum</div>
+      <input
+        type="number"
+        placeholder="Amount in Euros"
+        value={amountInEuros}
+        onChange={handleAmountChange}
+      />
+      <div>Rate: {euroToEtherRate ? `${euroToEtherRate} ETH per Euro` : "Loading..."}</div>
     </div>
   );
 }
 
 export default Home;
+

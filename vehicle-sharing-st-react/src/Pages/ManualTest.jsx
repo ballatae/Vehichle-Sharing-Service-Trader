@@ -102,7 +102,7 @@ const abi = [
   },
 ];
 
-function Home() {
+function ManualTest() {
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [amountInEuros, setAmountInEuros] = useState("");
@@ -252,5 +252,5 @@ function Home() {
   );
 }
 
-export default Home;
+export default ManualTest;
 

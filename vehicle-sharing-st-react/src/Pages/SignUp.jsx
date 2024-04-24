@@ -18,7 +18,7 @@ function Signup() {
     const minLength = password.length >= 8;
     const hasLetter = /[a-zA-Z]/.test(password);
     const hasNumber = /\d/.test(password);
-    const hasSymbol = /[^a-zA-Z\d]/.test(password);
+    const hasSymbol = /[^a-zA-Z\d\s]/.test(password);  
 
     setPasswordChecks({
       minLength,
@@ -26,6 +26,12 @@ function Signup() {
       hasNumber,
       hasSymbol
     });
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    validatePassword(newPassword);
   };
 
   const handleSignup = async () => {
@@ -56,13 +62,6 @@ function Signup() {
     }
   };
 
-  const handlePasswordChange = (e) => {
-    const newPassword = e.target.value;
-    setPassword(newPassword);
-    validatePassword(newPassword);
-  };
-
-
   return (
     <div className="signup-div">
       <div className="avatar"></div>
@@ -90,7 +89,7 @@ function Signup() {
         className="password"
         type="password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={handlePasswordChange}
       />
       <div className="password-requirements">
         <p style={{ color: passwordChecks.minLength ? 'green' : 'red' }}>At least 8 characters</p>

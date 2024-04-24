@@ -102,7 +102,9 @@ function Signup() {
       <p>
         Already have an account? <Link to="/login">Log In</Link>
       </p>
+      
     </div>
+    
   );
 }
 

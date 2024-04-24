@@ -121,6 +121,10 @@ function ManualTest() {
       try {
         const rate = await getEuroToEthereumRate();
         setEuroToEtherRate(rate);
+        console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
+        Sofou Building - 40.63747724119382, 22.936779912593263
+        Egnatia 7 - 40.63980161636855, 22.93707937684154` );
+
       } catch (rateError) {
         console.error("Failed to load the exchange rate:", rateError);
       }
@@ -301,6 +305,13 @@ function ManualTest() {
       <button onClick={connect}>Connect to wallet</button>
       <button onClick={executeTransaction}>Proceed with Payment</button>
       <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
+
+
+      
+        {/* Kromila Building - 40.63054328673723, 22.9438582463234
+        Sofou Building - 40.63747724119382, 22.936779912593263
+        Egnatia 7 - 40.63980161636855, 22.93707937684154 */}
+      
     </div>
   );
 }

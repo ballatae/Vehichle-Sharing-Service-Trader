@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+body {
+    font-family: 'Open+Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+
+.manual_test {
+    background-color: #5d8dd1;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.manual_test button {
+    background-color: rgb(198, 211, 230);
+    border: none;
+    border-radius: 20px;
+    color: rgb(31, 53, 119);
+    padding: 15px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 60%;
+    margin: 20px 0;
+    cursor: pointer;
+    outline: none;
+    transition: .5s;
+    align-self: center;
+}
+
+
+
+.manual_test button:hover {
+    background-color: #7292bd;
+}
+
+
+input[type='number'] {
+    border: none;
+    border-radius: 20px;
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    width: 40%;
+    /* Full width */
+    box-sizing: border-box;
+    /* Include padding in width */
+    background-color: #f0f0f0;
+    outline: none;
+    /* Removes the outline */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Inner shadow effect */
+    text-align: left;
+}
+
+
+.manual_test input[type='text'] {
+    border: none;
+    border-radius: 20px;
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    width: 50%;
+    /* Full width */
+    box-sizing: border-box;
+    /* Include padding in width */
+    background-color: #f0f0f0;
+    outline: none;
+    /* Removes the outline */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Inner shadow effect */
+    text-align: left;
+}
+
+.manual_test select {
+    border: none;
+    border-radius: 20px;
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    width: 40%;
+    box-sizing: border-box;
+    background-color: #f0f0f0;
+    color: #083b7f;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    transition: .5s;
+}

@@ -4,6 +4,7 @@ import { Contract } from "@ethersproject/contracts";
 import { parseEther } from "@ethersproject/units";
 import { getEuroToEthereumRate } from "./currencyConverter";
 import axios from "axios";
+import "./ManualTest.css"
 
 // Constants
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -113,6 +114,7 @@ function ManualTest() {
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [recipientAddresses, setRecipientAddresses] = useState([]);
+  const [userState, setUserState] = useState("");
 
   useEffect(() => {
     async function loadRateAndDrivers() {
@@ -179,6 +181,7 @@ function ManualTest() {
       value: parseEther(amountInEther.toString()),
     });
     await transactionResponse.wait();
+    setUserState(`Sent ${amountInEther} ETH to the contract.`);
     console.log(`Sent ${amountInEther} ETH to the contract.`);
   }
 
@@ -193,6 +196,7 @@ function ManualTest() {
         parseEther(amountInEther.toString())
       );
       await transactionResponse.wait();
+      setUserState(`Withdrawal of ${amountInEther} ETH to ${recipientAddress} was successful.`);
       console.log(`Withdrawal of ${amountInEther} ETH to ${recipientAddress} was successful.`);
     } catch (error) {
       console.error("Withdrawal failed:", error);
@@ -211,8 +215,8 @@ function ManualTest() {
       return;
     }
 
-    await sendEthersToContract(amountInEther.toFixed(18)); // Adjust decimal precision as needed
-    await withdrawTo(amountInEther.toFixed(18)); // Adjust decimal precision as needed
+    await sendEthersToContract(amountInEther.toFixed(18)); 
+    await withdrawTo(amountInEther.toFixed(18)); 
     console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
   }
 
@@ -232,6 +236,7 @@ function ManualTest() {
           Math.abs(userLatitude - parseFloat(latitude)) < range &&
           Math.abs(userLongitude - parseFloat(longitude)) < range
         ) {
+          setUserState("You are at the right location! Proceeding with Ethereum transaction...");
           console.log("You are at the right location! Proceeding with Ethereum transaction...");
           if (!provider) {
             await connect();
@@ -242,28 +247,30 @@ function ManualTest() {
             console.error("Failed to initialize provider.");
           }
         } else {
+          setUserState("You are not at the right location.");
           console.error("You are not at the right location.");
-          alert("You are not at the right location.");
+          // alert("You are not at the right location.");
         }
       },
       () => {
+        setUserState("Unable to retrieve your location");
         alert("Unable to retrieve your location");
       }
     );
   }
 
   return (
-    <div>
-      <button onClick={connect}>Connect</button>
-      <button onClick={executeTransaction}>Execute Transaction</button>
-      <button onClick={checkLocationAndExecute}>Check Location & Execute</button>
+    <div className="manual_test">
       <br />
+      <strong>Amount to be payed: </strong>
       <input
         type="number"
         placeholder="Amount in Euros"
         value={amountInEuros}
         onChange={(e) => setAmountInEuros(e.target.value)}
       />
+      <br />
+      <strong>Select one of the drivers you want to send the money to:</strong>
       <select value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}>
         <option value="">Select Recipient (Driver)</option>
         {recipientAddresses.map((addr) => (
@@ -272,6 +279,9 @@ function ManualTest() {
           </option>
         ))}
       </select>
+
+      <br />
+      <strong>Enter the coordinates manually</strong>
       <input
         type="text"
         placeholder="Latitude"
@@ -284,7 +294,13 @@ function ManualTest() {
         value={longitude}
         onChange={(e) => setLongitude(e.target.value)}
       />
-      <div>Rate: {euroToEtherRate ? `${euroToEtherRate} ETH per Euro` : "Loading..."}</div>
+      {/* <div>Rate: {euroToEtherRate ? `${euroToEtherRate} ETH per Euro` : "Loading..."}</div> */}
+
+      <p id="userState">{userState}</p>
+      <br />
+      <button onClick={connect}>Connect to wallet</button>
+      <button onClick={executeTransaction}>Proceed with Payment</button>
+      <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
     </div>
   );
 }

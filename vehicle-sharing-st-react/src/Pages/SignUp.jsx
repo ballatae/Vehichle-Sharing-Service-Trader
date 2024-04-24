@@ -6,7 +6,27 @@ import { useNavigate, Link } from "react-router-dom";
 function Signup() {
   const [userData, setUserData] = useState({ username: "", email: "" });
   const [password, setPassword] = useState("");
+  const [passwordChecks, setPasswordChecks] = useState({
+    minLength: false,
+    hasLetter: false,
+    hasNumber: false,
+    hasSymbol: false
+  });
   const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSymbol = /[^a-zA-Z\d]/.test(password);
+
+    setPasswordChecks({
+      minLength,
+      hasLetter,
+      hasNumber,
+      hasSymbol
+    });
+  };
 
   const handleSignup = async () => {
     try {
@@ -22,16 +42,10 @@ function Signup() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.message); // "User created successfully"
+        alert(result.message); 
         localStorage.setItem("userEthereumAddress", result.ethereumAddress);
         alert("Please import the assigned Ethereum address into MetaMask to continue.");
-
-        // Use navigate to pass state to the EthereumDetails component
-        navigate("/login", {
-          state: { 
-            
-          },
-        });
+        navigate("/login");
       } else {
         const error = await response.json();
         alert(`Signup failed: ${error.message}`);
@@ -41,6 +55,13 @@ function Signup() {
       alert("An error occurred, please try again.");
     }
   };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    validatePassword(newPassword);
+  };
+
 
   return (
     <div className="signup-div">
@@ -71,6 +92,12 @@ function Signup() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
+      <div className="password-requirements">
+        <p style={{ color: passwordChecks.minLength ? 'green' : 'red' }}>At least 8 characters</p>
+        <p style={{ color: passwordChecks.hasLetter ? 'green' : 'red' }}>At least one letter</p>
+        <p style={{ color: passwordChecks.hasNumber ? 'green' : 'red' }}>At least one number</p>
+        <p style={{ color: passwordChecks.hasSymbol ? 'green' : 'red' }}>At least one symbol</p>
+      </div>
       <br />
       <button onClick={handleSignup}>Sign Up</button>
       <p>

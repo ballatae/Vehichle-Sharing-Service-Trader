@@ -36,7 +36,7 @@ function RolesSelection() {
             const result = await response.json();
             console.log("Role update response:", result);
             alert(`Role set to ${role}`);
-            navigate('/home');
+            navigate('/manualTest');
         } catch (error) {
             console.error('Error updating role:', error);
             alert('An error occurred while updating role: ' + error.message);

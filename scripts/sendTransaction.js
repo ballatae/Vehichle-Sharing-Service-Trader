@@ -9,7 +9,7 @@ async function main() {
 
   await transactionResponse.wait();
   console.log(
-    `Transaction successful! 1 Ether sent from ${sender.address} to ${recipient.address}`
+    `Transaction successful! Sent from ${sender.address} to ${recipient.address}`
   );
 }
 

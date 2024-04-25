@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+body {
+    font-family: 'Open+Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.signup-div,
+.login-div {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 300px;
+    /* Adjust width as needed */
+}
+
+.avatar {
+    background-color: #3498db;
+    border-radius: 50%;
+    height: 60px;
+    /* Avatar size */
+    width: 60px;
+    margin: 0 auto 20px;
+    /* Center the avatar and add margin below */
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'] {
+    border: none;
+    border-radius: 20px;
+    display: block;
+    margin: 10px 0;
+    padding: 15px;
+    width: 100%;
+    /* Full width */
+    box-sizing: border-box;
+    /* Include padding in width */
+    background-color: #f0f0f0;
+    outline: none;
+    /* Removes the outline */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Inner shadow effect */
+    text-align: left;
+}
+
+button {
+    background-color: #3498db;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    padding: 15px;
+    text-transform: uppercase;
+    width: 100%;
+    margin: 20px 0;
+    cursor: pointer;
+    outline: none;
+    transition: .5s;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: #3498db;
+    padding: 0;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    text-decoration: underline;
+    background-color: none;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 70%;
+    text-align: left;
+    padding-left: 5px;
+}
+
+
+.password-requirements {
+    font-size: x-small;
+}

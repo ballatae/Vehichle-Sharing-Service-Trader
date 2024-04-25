@@ -30,7 +30,7 @@ function EthereumDetails({ onContinue }) {
   const handleContinue = () => {
     console.log("Navigating with userId:", userId);
     setTimeout(() => {
-      navigate("/role-selection", {
+      navigate("/manualTest", {
         state: {
           userId: userId
         }

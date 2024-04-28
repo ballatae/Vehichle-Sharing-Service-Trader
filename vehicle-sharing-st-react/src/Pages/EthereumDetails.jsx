@@ -1,15 +1,13 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios"; // Ensure axios is imported to make HTTP requests
 
-function EthereumDetails({ onContinue }) {
+function EthereumDetails() {
   const location = useLocation();
-  const navigate = useNavigate(); // Initialize the useNavigate hook
+  const navigate = useNavigate();
   const { ethereumAddress, ethereumPrivateKey, userId } = location.state || {};
 
   console.log("Received State in EthereumDetails:", location.state);
-
-   console.log("UserID from state:", userId);
-  
 
   const connectMetaMask = async () => {
     if (typeof window.ethereum !== "undefined") {
@@ -18,25 +16,43 @@ function EthereumDetails({ onContinue }) {
         alert("MetaMask is connected.");
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
-        alert(
-          "Failed to connect MetaMask. Make sure MetaMask is installed and you have granted access."
-        );
+        alert("Failed to connect MetaMask. Make sure MetaMask is installed and you have granted access.");
       }
     } else {
       alert("MetaMask is not installed!");
     }
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     console.log("Navigating with userId:", userId);
-    setTimeout(() => {
-      navigate("/manualTest", {
-        state: {
-          userId: userId
+    try {
+        const response = await axios.get('http://localhost:3001/api/activeroutes');
+        console.log(response.data); // Log the full response data
+        const activeRoutes = response.data; // Assuming response.data is the array of routes
+        if (activeRoutes.length === 0) {
+            throw new Error('No active routes found');
         }
-      })
-    }, 1000);
-  };
+        const data = activeRoutes[0]; // Use the first active route
+        const lastCoordinatePair = data.initialRoute?.geometry?.coordinates[0]?.slice(-1)[0];
+        const segmentCostValue = data.costDetails.segmentCost["1"].$numberDecimal;
+
+
+        setTimeout(() => {
+            navigate("/manualTest", {
+                state: {
+                    userId: userId,
+                    segmentCost: segmentCostValue || "0",
+                    lastLongitude: lastCoordinatePair ? lastCoordinatePair[0] : undefined,
+                    lastLatitude: lastCoordinatePair ? lastCoordinatePair[1] : undefined
+                }
+            });
+        }, 1000);
+    } catch (error) {
+        console.error('Failed to fetch active route details:', error);
+    }
+};
+
+
 
   return (
     <div className="ethereum-details-div">

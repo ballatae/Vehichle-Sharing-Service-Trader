@@ -290,6 +290,16 @@ app.post("/api/activeroutes", async (req, res) => {
   }
 });
 
+app.get("/api/activeroutes", async (req, res) => {
+  try {
+    const activeRoutes = await ActiveRoute.find(); // Fetch all active routes
+    res.json(activeRoutes);
+  } catch (error) {
+    console.error("Failed to fetch active routes:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"; // Import useLocation
 import { Web3Provider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { parseEther } from "@ethersproject/units";
 import { getEuroToEthereumRate } from "./currencyConverter";
 import axios from "axios";
-import "./ManualTest.css"
+import "./ManualTest.css";
 
 // Constants
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -106,6 +107,7 @@ const abi = [
 
 
 function ManualTest() {
+  const location = useLocation();
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
   const [amountInEuros, setAmountInEuros] = useState("");
@@ -117,18 +119,21 @@ function ManualTest() {
   const [userState, setUserState] = useState("");
 
   useEffect(() => {
+    if (location.state) {
+      setAmountInEuros(location.state.segmentCost || "");
+      setLatitude(location.state.lastLatitude || "");
+      setLongitude(location.state.lastLongitude || "");
+    }
     async function loadRateAndDrivers() {
       try {
         const rate = await getEuroToEthereumRate();
         setEuroToEtherRate(rate);
         console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
         Sofou Building - 40.63747724119382, 22.936779912593263
-        Egnatia 7 - 40.63980161636855, 22.93707937684154` );
-
+        Egnatia 7 - 40.63980161636855, 22.93707937684154`);
       } catch (rateError) {
         console.error("Failed to load the exchange rate:", rateError);
       }
-
       try {
         const response = await axios.get("http://localhost:3001/api/drivers");
         setRecipientAddresses(response.data);
@@ -137,7 +142,7 @@ function ManualTest() {
       }
     }
     loadRateAndDrivers();
-  }, []);
+  }, [location.state]);
 
   
 
@@ -283,7 +288,6 @@ function ManualTest() {
           </option>
         ))}
       </select>
-
       <br />
       <strong>Enter the coordinates manually</strong>
       <input

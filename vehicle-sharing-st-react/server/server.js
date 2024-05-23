@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const app = express();
 const cors = require("cors");
 const { preFundedAccounts } = require("./ethereumService");
+const axios = require("axios");
 
 app.use(cors());
 app.use(express.json());
@@ -44,10 +45,52 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["driver", "passenger"], default: "passenger" },
   accountIndex: { type: Number, unique: true },
 });
+
 const counterSchema = new mongoose.Schema({
   _id: { type: String, required: true },
   seq: { type: Number, default: 0 },
 });
+
+const activeRouteSchema = new mongoose.Schema({
+  initialRoute: {
+    driverId: { type: String, required: true },
+    geometry: {
+      type: { type: String, enum: ["LineString"], required: true },
+      coordinates: { type: [[[Number]]], required: true }, // Array of arrays of coordinates (longitude, latitude)
+    },
+    duration: { type: Number, required: true },
+    distance: { type: Number, required: true },
+    seatsAvailable: { type: Number, required: true },
+    maxStopTime: { type: Number, required: true },
+    cost: { type: mongoose.Decimal128, required: true },
+    expiry: { type: Number, required: true },
+    isOpen: { type: Boolean, required: true },
+    routeDate: { type: Date, required: true },
+    stops: [
+      {
+        coordinates: { type: [Number], required: true },
+        passengerId: { type: String, required: true },
+        stopType: {
+          type: String,
+          required: true,
+          enum: ["Pick Up", "Drop Off"],
+        },
+      },
+    ],
+    identifiedCoordinates: [
+      {
+        coordinate: { type: [Number], required: true },
+        identifiers: [{ type: String }],
+      },
+    ],
+  },
+  costDetails: {
+    segmentCost: { type: Map, of: mongoose.Decimal128 },
+    identifiers: [{ type: String }],
+  },
+});
+
+const ActiveRoute = mongoose.model("ActiveRoute", activeRouteSchema);
 
 const Counter = mongoose.model("Counter", counterSchema);
 
@@ -224,9 +267,37 @@ app.get("/api/drivers", async (req, res) => {
   }
 });
 
-app.get("/api/activeroutes", async (req, res) => {
+app.post("/api/activeroutes", async (req, res) => {
+  try {
+    // Construct a new ActiveRoute instance using the request body
+    const newActiveRoute = new ActiveRoute(req.body);
 
-  
+    // Save the new active route to the database
+    const savedActiveRoute = await newActiveRoute.save();
+
+    // Send a success response with the saved document
+    res.status(201).json({
+      message: "Active route saved successfully",
+      activeRoute: savedActiveRoute,
+    });
+  } catch (error) {
+    // If there's an error, send an error response
+    console.error("Error saving active route:", error);
+    res.status(500).json({
+      message: "Error saving active route",
+      error: error.message,
+    });
+  }
+});
+
+app.get("/api/activeroutes", async (req, res) => {
+  try {
+    const activeRoutes = await ActiveRoute.find(); // Fetch all active routes
+    res.json(activeRoutes);
+  } catch (error) {
+    console.error("Failed to fetch active routes:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 const PORT = process.env.PORT || 3001;

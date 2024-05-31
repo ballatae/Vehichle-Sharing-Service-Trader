@@ -51,6 +51,16 @@ const counterSchema = new mongoose.Schema({
   seq: { type: Number, default: 0 },
 });
 
+const transactionSchema = new mongoose.Schema({
+  fromAddress: { type: String, required: true },
+  toAddress: { type: String, required: true },
+  amountInEuros: { type: mongoose.Decimal128, required: true },
+  amountInEthers: { type: mongoose.Decimal128, required: true },
+  timestamp: { type: Date, default: Date.now, required: true },
+});
+
+const Transaction = mongoose.model("Transaction", transactionSchema);
+
 const activeRouteSchema = new mongoose.Schema({
   initialRoute: {
     driverId: { type: String, required: true },
@@ -215,10 +225,11 @@ app.post("/api/login", async (req, res) => {
       { expiresIn: "1h" } // Token expires in 1 hour
     );
 
-    // Respond with a success message, token, and Ethereum address
+    // Respond with a success message, token, user details, and Ethereum address
     res.status(200).json({
       message: "Login successful",
-      id: user._id,
+      userId: user._id,
+      username: user.username,
       token: token,
       ethereumAddress: user.ethereumAddress,
       ethereumPrivateKey: user.ethereumPrivateKey,
@@ -228,6 +239,7 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 app.post("/api/update-role", authenticateToken, async (req, res) => {
   const { role } = req.body;
@@ -296,6 +308,37 @@ app.get("/api/activeroutes", async (req, res) => {
     res.json(activeRoutes);
   } catch (error) {
     console.error("Failed to fetch active routes:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/api/logTransaction", authenticateToken, async (req, res) => {
+  console.log("logTransaction endpoint hit"); // Add this line
+  try {
+    const { fromAddress, toAddress, amountInEuros, amountInEthers } = req.body;
+    console.log(req.body); // Log request body for debugging
+    const newTransaction = new Transaction({
+      fromAddress,
+      toAddress,
+      amountInEuros,
+      amountInEthers,
+    });
+    await newTransaction.save();
+    res.status(201).json({ message: "Transaction logged successfully" });
+  } catch (error) {
+    console.error("Error logging transaction:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.get("/api/userTransactions", authenticateToken, async (req, res) => {
+  try {
+    const transactions = await Transaction.find({
+      fromAddress: req.user.ethereumAddress,
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error("Failed to fetch user transactions:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });

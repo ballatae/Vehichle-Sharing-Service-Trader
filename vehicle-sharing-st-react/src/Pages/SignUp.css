@@ -1,8 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
 
+:root {
+    --_fw-900: 900;
+    --_fw-700: 700;
+    --_fw-400: 400;
+
+    --_clr-900: hsl(0, 0%, 100%);
+    --_clr-700: hsl(0, 0%, 80%);
+    --_clr-400: hsl(0, 0%, 60%);
+}
+
 body {
-    font-family: 'Open+Sans', sans-serif;
-    background-color: #f0f0f0;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #0d396b;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -10,24 +20,71 @@ body {
     margin: 0;
 }
 
-.signup-div,
-.login-div {
-    background-color: #fff;
-    border-radius: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 40px;
-    width: 300px;
-    /* Adjust width as needed */
+.bubble-text {
+    font-size: clamp(1.5rem, calc(1.5rem + 2vw), 4rem);
+    /* Adjusted font size */
+    color: hsl(0, 0%, 50%);
+    user-select: none;
 }
 
-.avatar {
+.split-text {
+    display: inline-flex;
+}
+
+.split-char {
+    font-weight: 200;
+    transition: font-weight 0.5s ease;
+}
+
+.split-char:hover {
+    font-weight: var(--_fw-900);
+    color: var(--_clr-900);
+}
+
+.split-char:hover+.split-char {
+    font-weight: var(--_fw-700);
+    color: var(--_clr-700);
+}
+
+.split-char:hover+.split-char+.split-char {
+    font-weight: var(--_fw-400);
+    color: var(--_clr-400);
+}
+
+.split-char:has(+ .split-char:hover) {
+    font-weight: var(--_fw-700);
+    color: var(--_clr-700);
+}
+
+.split-char:has(+ .split-char + .split-char:hover) {
+    font-weight: var(--_fw-400);
+    color: var(--_clr-400);
+}
+
+button {
     background-color: #3498db;
-    border-radius: 50%;
-    height: 60px;
-    /* Avatar size */
-    width: 60px;
-    margin: 0 auto 20px;
-    /* Center the avatar and add margin below */
+    border: none;
+    border-radius: 20px;
+    color: white;
+    padding: 15px;
+    /* Adjusted padding for bigger buttons* */
+    text-transform: uppercase;
+    width: 200px;
+    /* Fixed width for consistency* */
+    margin: 10px 0;
+    /* Adjusted margin */
+    cursor: pointer;
+    outline: none;
+    transition: 0.5s;
+    font-size: 0.8rem;
+    /* Adjusted font size */
+}
+
+
+
+
+button:hover {
+    background-color: #2980b9;
 }
 
 input[type='text'],
@@ -42,30 +99,33 @@ input[type='password'] {
     /* Full width */
     box-sizing: border-box;
     /* Include padding in width */
-    background-color: #f0f0f0;
-    outline: none;
+    background-color: #104683;
+    color: #bdd4ef;
+    outline: #0d396b;
+
     /* Removes the outline */
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 3px #bdd4ef;
     /* Inner shadow effect */
     text-align: left;
 }
 
-button {
-    background-color: #3498db;
-    border: none;
-    border-radius: 20px;
-    color: white;
-    padding: 15px;
-    text-transform: uppercase;
-    width: 100%;
-    margin: 20px 0;
-    cursor: pointer;
-    outline: none;
-    transition: .5s;
+.layout-div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
-button:hover {
-    background-color: #2980b9;
+.navigation-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 200px;
+    /* Adjusted to match button width* */
+    width: 100%;
+    padding: 0 20px;
+    /* Added padding */
 }
 
 .link-button {
@@ -74,6 +134,7 @@ button:hover {
     color: #3498db;
     padding: 0;
     cursor: pointer;
+    transition: .5s;
 }
 
 .link-button:hover {
@@ -87,9 +148,102 @@ label {
     font-size: 70%;
     text-align: left;
     padding-left: 5px;
+    color: #dbe4ef;
 }
-
 
 .password-requirements {
     font-size: x-small;
+}
+
+.login-div,
+.signup-div {
+    background-color: #104178;
+    padding-top: 3em;
+    padding-bottom: 3em;
+    padding-left: 6em;
+    padding-right: 6em;
+    border-radius: 25px;
+    transition: .5s;
+}
+
+.login-div:hover {
+    box-shadow: 2px 4px 5px #104178;
+}
+
+.signup-div:hover {
+    box-shadow: 2px 4px 5px #104178;
+}
+
+.login-div label {
+    font-weight: 300;
+}
+
+.login-div #loginbtn {
+    background-color: #f7f7f7;
+    font-weight: 300;
+    transition: .5s;
+    margin-left: 1em;
+    color: #0d396b;
+}
+
+.signup-div #sgnbtn {
+    background-color: #f7f7f7;
+    font-weight: 300;
+    transition: .5s;
+    margin-left: 1em;
+    color: #0d396b;
+}
+
+.login-div #loginbtn:hover {
+    background-color: #f7f7f7;
+    color: #0d4381;
+}
+
+
+.signup-div #sgnbtn:hover {
+    background-color: #f7f7f7;
+    color: #0d4381;
+}
+
+.already {
+    color: #f7f7f7;
+}
+
+
+/* eth details */
+
+.ethereum-details-div {
+    text-align: center;
+    padding: 40px;
+}
+
+.ethereum-details-div img {
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+.details-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.detail-text {
+    text-align: left;
+    flex: 1;
+}
+
+.copied {
+    color: green;
+}
+
+.connect-metamask-button,
+.continue-button {
+    display: block;
+    margin: 20px auto;
+}
+
+.copy {
+    margin-left: 5em;
 }

@@ -21,13 +21,14 @@ function LogIn() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.message); // "Login successful"
+        alert(result.message); 
         localStorage.setItem("token", result.token);
         navigate("/ethereum-details", {
           state: {
             userId: result.userId,
             ethereumAddress: result.ethereumAddress,
             ethereumPrivateKey: result.ethereumPrivateKey,
+            username: result.username, 
           },
         });
       } else {
@@ -57,8 +58,8 @@ function LogIn() {
         onChange={(e) => setPassword(e.target.value)}
       />
       <br />
-      <button onClick={handleLogin}>Log In</button>
-      <p>
+      <button id="loginbtn" onClick={handleLogin}>Log In</button>
+      <p className="already">
         Don't have an account? <Link to="/signup">Sign Up</Link>
       </p>
     </div>

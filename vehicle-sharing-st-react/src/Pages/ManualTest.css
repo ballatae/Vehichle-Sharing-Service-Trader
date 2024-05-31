@@ -2,14 +2,33 @@
 
 body {
     font-family: 'Open+Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: #092d56;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    color: #d5d7e6;
 }
 
+
+#main-heading {
+    font-size: clamp(2rem, calc(2rem + 3.5vw), 8rem);
+    color: hsl(0, 0%, 50%);
+    user-select: none;
+
+    & .split-char {
+        font-weight: 200;
+        transition: font-weight 0.5s ease;
+
+        &:hover {
+            font-weight: var(--_fw-900);
+            color: var(--_clr-900);
+        }
+
+
+    }
+}
 
 .manual_test {
     background-color: #5d8dd1;

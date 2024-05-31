@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios"; // Ensure axios is imported to make HTTP requests
+import metamaskLogo from '../photos/metamask.png'; // Make sure to have the MetaMask logo in your project
 
 function EthereumDetails() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { ethereumAddress, ethereumPrivateKey, userId } = location.state || {};
+  const { ethereumAddress, ethereumPrivateKey, userId, username } = location.state || {};
+
+  const [copyMessage, setCopyMessage] = useState("");
+  const [lastCopiedButton, setLastCopiedButton] = useState("");
 
   console.log("Received State in EthereumDetails:", location.state);
 
@@ -26,43 +30,83 @@ function EthereumDetails() {
   const handleContinue = async () => {
     console.log("Navigating with userId:", userId);
     try {
-        const response = await axios.get('http://localhost:3001/api/activeroutes');
-        console.log(response.data); // Log the full response data
-        const activeRoutes = response.data; // Assuming response.data is the array of routes
-        if (activeRoutes.length === 0) {
-            throw new Error('No active routes found');
-        }
-        const data = activeRoutes[0]; // Use the first active route
-        const lastCoordinatePair = data.initialRoute?.geometry?.coordinates[0]?.slice(-1)[0];
-        const segmentCostValue = data.costDetails.segmentCost["1"].$numberDecimal;
+      const response = await axios.get('http://localhost:3001/api/activeroutes');
+      console.log(response.data);
+      const activeRoutes = response.data;
+      if (activeRoutes.length === 0) {
+        throw new Error('No active routes found');
+      }
+      const data = activeRoutes[0];
+      const lastCoordinatePair = data.initialRoute?.geometry?.coordinates[0]?.slice(-1)[0];
+      const segmentCostValue = data.costDetails.segmentCost["1"].$numberDecimal;
 
-
-        setTimeout(() => {
-            navigate("/manualTest", {
-                state: {
-                    userId: userId,
-                    segmentCost: segmentCostValue || "0",
-                    lastLongitude: lastCoordinatePair ? lastCoordinatePair[0] : undefined,
-                    lastLatitude: lastCoordinatePair ? lastCoordinatePair[1] : undefined
-                }
-            });
-        }, 1000);
+      setTimeout(() => {
+        navigate("/manualTest", {
+          state: {
+            userId: userId,
+            segmentCost: segmentCostValue || "0",
+            lastLongitude: lastCoordinatePair ? lastCoordinatePair[0] : undefined,
+            lastLatitude: lastCoordinatePair ? lastCoordinatePair[1] : undefined
+          }
+        });
+      }, 1000);
     } catch (error) {
-        console.error('Failed to fetch active route details:', error);
+      navigate("/manualTest", {
+        state: {
+          userId: userId
+        }
+      });
+      console.error('Failed to fetch active route details:', error);
     }
-};
+  };
 
-
+  const copyToClipboard = (text, type) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        setCopyMessage(`${type} copied to clipboard!`);
+        setLastCopiedButton(type);
+        setTimeout(() => {
+          setCopyMessage("");
+          setLastCopiedButton(""); // Reset button color after 5 seconds
+        }, 3000); // Clear message and reset button color after 5 seconds
+      },
+      (err) => {
+        console.error('Failed to copy: ', err);
+      }
+    );
+  };
 
   return (
     <div className="ethereum-details-div">
-      <h1>Metamask Details</h1>
-      <p>
-        <strong>Address:</strong> {ethereumAddress}
-      </p>
-      <p>
-        <strong>Private Key:</strong> {ethereumPrivateKey || "Not available"}
-      </p>
+      <img src={metamaskLogo} alt="MetaMask Logo" style={{ width: "100px", height: "100px" }} />
+      <h1>MetaMask Details</h1>
+      <p>Hello, {username}</p>
+      <p>These are your details to connect to MetaMask wallet. Please connect to MetaMask before continuing.</p>
+      <div className="details-row">
+        <p className={`detail-text ${lastCopiedButton === "Address" ? "copied" : ""}`}>
+          <strong>Address:</strong> {ethereumAddress}
+        </p>
+        <button className="copy"
+          onClick={() => copyToClipboard(ethereumAddress, "Address")}
+          style={{ backgroundColor: lastCopiedButton === "Address" ? "green" : "" }}
+        >
+          Copy Address
+        </button>
+      </div>
+      <div className="details-row">
+        <p className={`detail-text ${lastCopiedButton === "Private Key" ? "copied" : ""}`}>
+          <strong>Private Key:</strong> {ethereumPrivateKey || "Not available"}
+        </p>
+        {ethereumPrivateKey && (
+          <button className="copy"
+            onClick={() => copyToClipboard(ethereumPrivateKey, "Private Key")}
+            style={{ backgroundColor: lastCopiedButton === "Private Key" ? "green" : "" }}
+          >
+            Copy Private Key
+          </button>
+        )}
+      </div>
+      {copyMessage && <p>{copyMessage}</p>}
       <button className="connect-metamask-button" onClick={connectMetaMask}>
         Connect MetaMask
       </button>
@@ -74,3 +118,6 @@ function EthereumDetails() {
 }
 
 export default EthereumDetails;
+
+
+

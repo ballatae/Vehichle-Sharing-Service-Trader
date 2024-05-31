@@ -105,8 +105,7 @@ const abi = [
   },
 ];
 
-
-function ManualTest() {
+function CheckAndPay() {
   const location = useLocation();
   const [provider, setProvider] = useState(null);
   const [contract, setContract] = useState(null);
@@ -144,10 +143,6 @@ function ManualTest() {
     }
     loadRateAndDrivers();
   }, [location.state]);
-
-  
-
-  
 
   async function connect() {
     if (window.ethereum) {
@@ -204,24 +199,90 @@ function ManualTest() {
   }
 
   async function executeTransaction() {
-  if (!amountInEuros) {
-    alert("Please enter a valid amount in Euros.");
-    return;
-  }
-  const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
-  if (isNaN(amountInEther)) {
-    alert("Invalid amount. Please check your input and the exchange rate.");
-    return;
-  } 
-    
-  
+    if (!amountInEuros) {
+      alert("Please enter a valid amount in Euros.");
+      return;
+    }
+    const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
+    if (isNaN(amountInEther)) {
+      alert("Invalid amount. Please check your input and the exchange rate.");
+      return;
+    } 
 
-  await sendEthersToContract(amountInEther.toFixed(18)); 
+    await sendEthersToContract(amountInEther.toFixed(18)); 
     await withdrawTo(amountInEther.toFixed(18)); 
-    
-  console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
 
-}
+    console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
+  }
+
+  function calculateRadiusBasedOnRouteLength(routeLength) {
+    const routeLengthKm = routeLength / 1000;
+    return routeLengthKm * ((routeLengthKm >= 50) ? 0.01 : 0.05);
+  }
+
+  function calculateIntervals(totalDuration) {
+    const intervals = [];
+    let remainingDuration = totalDuration;
+    
+    while (remainingDuration > totalDuration * 0.1) {
+      intervals.push(totalDuration * 0.3);
+      remainingDuration -= totalDuration * 0.3;
+    }
+
+    const lastTenPercent = totalDuration * 0.1;
+    for (let i = 0; i < 10; i++) {
+      intervals.push(lastTenPercent / 10);
+    }
+
+    return intervals;
+  }
+
+  async function startLocationChecks(totalDuration) {
+    const intervals = calculateIntervals(totalDuration);
+    let currentIndex = 0;
+
+    async function checkLocation() {
+      if (currentIndex >= intervals.length) return;
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const userLatitude = position.coords.latitude;
+          const userLongitude = position.coords.longitude;
+          const range = calculateRadiusBasedOnRouteLength(routeLength);
+
+          if (
+            Math.abs(userLatitude - parseFloat(latitude)) < range &&
+            Math.abs(userLongitude - parseFloat(longitude)) < range
+          ) {
+            setUserState("You are at the right location! Proceeding with Ethereum transaction...");
+            console.log("You are at the right location! Proceeding with Ethereum transaction...");
+            if (!provider) {
+              await connect();
+            }
+            if (provider) {
+              await executeTransaction();
+            } else {
+              console.error("Failed to initialize provider.");
+            }
+          } else {
+            setUserState("You are not at the right location.");
+            console.error("You are not at the right location.");
+          }
+        },
+        () => {
+          setUserState("Unable to retrieve your location");
+          alert("Unable to retrieve your location");
+        }
+      );
+
+      currentIndex++;
+      if (currentIndex < intervals.length) {
+        setTimeout(checkLocation, intervals[currentIndex] * 1000);
+      }
+    }
+
+    setTimeout(checkLocation, intervals[currentIndex] * 1000);
+  }
 
   async function checkLocationAndExecute() {
     if (!navigator.geolocation) {
@@ -229,75 +290,17 @@ function ManualTest() {
       return;
     }
 
-    // navigator.geolocation.getCurrentPosition(
-    //   async (position) => {
-    //     const userLatitude = position.coords.latitude;
-    //     const userLongitude = position.coords.longitude;
-    //     const range = 0.1;
+    const tripStartTime = new Date(location.state.tripStartTime).getTime();
+    const currentTime = Date.now();
+    const totalDuration = (location.state.tripDuration * 60) - (currentTime - tripStartTime) / 1000;
 
-    //     if (
-    //       Math.abs(userLatitude - parseFloat(latitude)) < range &&
-    //       Math.abs(userLongitude - parseFloat(longitude)) < range
-    //     ) {
-    //       setUserState("You are at the right location! Proceeding with Ethereum transaction...");
-    //       console.log("You are at the right location! Proceeding with Ethereum transaction...");
-    //       if (!provider) {
-    //         await connect();
-    //       }
-    //       if (provider) {
-    //         await executeTransaction();
-    //       } else {
-    //         console.error("Failed to initialize provider.");
-    //       }
-    //     } else {
-    //       setUserState("You are not at the right location.");
-    //       console.error("You are not at the right location.");
-    //       // alert("You are not at the right location.");
-    //     }
-    //   },
-    //   () => {
-    //     setUserState("Unable to retrieve your location");
-    //     alert("Unable to retrieve your location");
-    //   }
-    // );
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-      const userLatitude = position.coords.latitude;
-      const userLongitude = position.coords.longitude;
-
-    // Convert route length from meters to kilometers
-    const routeLengthKm = routeLength / 1000;
-
-    // Calculate the range using a single expression
-    const range = routeLengthKm * ((routeLengthKm >= 50) ? 0.01 : 0.05);
-
-    // Check if the user is within the required range
-    if (
-      Math.abs(userLatitude - parseFloat(latitude)) < range &&
-      Math.abs(userLongitude - parseFloat(longitude)) < range
-    ) {
-      setUserState("You are at the right location! Proceeding with Ethereum transaction...");
-      console.log("You are at the right location! Proceeding with Ethereum transaction...");
-      if (!provider) {
-        await connect();
-      }
-      if (provider) {
-        await executeTransaction();
-      } else {
-        console.error("Failed to initialize provider.");
-      }
-    } else {
-      setUserState("You are not at the right location.");
-      console.error("You are not at the right location.");
+    if (totalDuration <= 0) {
+      setUserState("The trip duration has already passed.");
+      return;
     }
-  },
-  () => {
-    setUserState("Unable to retrieve your location");
-    alert("Unable to retrieve your location");
+
+    startLocationChecks(totalDuration);
   }
-    );
-}
 
   return (
     <div className="manual_test">
@@ -348,11 +351,6 @@ function ManualTest() {
       <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
     </div>
   );
-
-      
-        
-      
 }
 
-
-export default ManualTest;
+export default CheckAndPay;

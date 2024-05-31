@@ -1,4 +1,7 @@
 // ethereumService.js
+
+const axios = require("axios");
+
 const preFundedAccounts = [
   // ! acc0
   {

@@ -50,7 +50,6 @@ function Signup() {
         const result = await response.json();
         alert(result.message); 
         localStorage.setItem("userEthereumAddress", result.ethereumAddress);
-        alert("Please import the assigned Ethereum address into MetaMask to continue.");
         navigate("/login");
       } else {
         const error = await response.json();
@@ -98,8 +97,8 @@ function Signup() {
         <p style={{ color: passwordChecks.hasSymbol ? 'green' : 'red' }}>At least one symbol</p>
       </div>
       <br />
-      <button onClick={handleSignup}>Sign Up</button>
-      <p>
+      <button id="sgnbtn" onClick={handleSignup}>Sign Up</button>
+      <p className="already">
         Already have an account? <Link to="/login">Log In</Link>
       </p>
       

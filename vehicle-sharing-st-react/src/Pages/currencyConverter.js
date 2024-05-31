@@ -1,4 +1,3 @@
-// rateAPI.js
 export function getEuroToEthereumRate() {
   const apiKey = "cur_live_fGjBA2kPwa6xbU2fBnFHMv4KWunyVbNxA8Gh9wdA";
   const url = `https://api.currencyapi.com/v3/latest?apikey=${apiKey}&currencies=ETH&base_currency=EUR`;

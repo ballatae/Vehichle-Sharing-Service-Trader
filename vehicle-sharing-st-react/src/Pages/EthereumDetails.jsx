@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios"; // Ensure axios is imported to make HTTP requests
-import metamaskLogo from '../photos/metamask.png'; // Make sure to have the MetaMask logo in your project
+import axios from "axios";
+import metamaskLogo from '../photos/metamask.png';
 
 function EthereumDetails() {
   const location = useLocation();
@@ -41,7 +41,7 @@ function EthereumDetails() {
       const segmentCostValue = data.costDetails.segmentCost["1"].$numberDecimal;
 
       setTimeout(() => {
-        navigate("/manualTest", {
+        navigate("/activeRoutes", {
           state: {
             userId: userId,
             segmentCost: segmentCostValue || "0",
@@ -51,7 +51,7 @@ function EthereumDetails() {
         });
       }, 1000);
     } catch (error) {
-      navigate("/manualTest", {
+      navigate("/activeRoutes", {
         state: {
           userId: userId
         }
@@ -67,8 +67,8 @@ function EthereumDetails() {
         setLastCopiedButton(type);
         setTimeout(() => {
           setCopyMessage("");
-          setLastCopiedButton(""); // Reset button color after 5 seconds
-        }, 3000); // Clear message and reset button color after 5 seconds
+          setLastCopiedButton("");
+        }, 3000);
       },
       (err) => {
         console.error('Failed to copy: ', err);

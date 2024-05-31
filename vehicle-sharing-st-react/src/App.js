@@ -8,6 +8,7 @@ import EthereumDetails from "./Pages/EthereumDetails";
 import RolesSelection from "./Pages/RoleSelection";
 import ManualTest from "./Pages/ManualTest";
 import CheckAndPay from "./Pages/CheckAndPay";
+import ActiveRoutes from "./Pages/ActiveRoutes";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/role-selection" element={<RolesSelection />} />
           <Route path="/manualTest" element={<ManualTest />} />
           <Route path="/checkAndPay" element={<CheckAndPay />} />
+          <Route path="/activeRoutes" element={<ActiveRoutes />} />
         </Routes>
       </BrowserRouter>
     </div>

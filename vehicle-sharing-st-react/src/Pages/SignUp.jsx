@@ -1,6 +1,7 @@
 import "./SignUp.css";
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import vshlogo from '../photos/vshlogo.png';
 
 
 function Signup() {
@@ -63,7 +64,7 @@ function Signup() {
 
   return (
     <div className="signup-div">
-      <div className="avatar"></div>
+      <img className="vslogo" src={vshlogo} alt="vshlogo" style={{ width: "100px", height: "100px" }} />
       <label htmlFor="username">Username:</label>
       <input
         id="username"

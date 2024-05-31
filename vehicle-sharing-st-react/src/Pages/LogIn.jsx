@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import vshlogo from '../photos/vshlogo.png';
 
 function LogIn() {
   const [username, setUsername] = useState("");
@@ -43,7 +44,7 @@ function LogIn() {
 
   return (
     <div className="login-div">
-      <div className="avatar"></div>
+      <img className="vslogo" src={vshlogo} alt="vshlogo" style={{ width: "100px", height: "100px" }} />
       <label htmlFor="username">Username:</label>
       <input
         type="text"

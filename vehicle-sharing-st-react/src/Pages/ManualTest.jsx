@@ -129,7 +129,8 @@ function ManualTest() {
       try {
         const rate = await getEuroToEthereumRate();
         setEuroToEtherRate(rate);
-        console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
+        
+console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
         Sofou Building - 40.63747724119382, 22.936779912593263
         Egnatia 7 - 40.63980161636855, 22.93707937684154`);
       } catch (rateError) {
@@ -144,10 +145,6 @@ function ManualTest() {
     }
     loadRateAndDrivers();
   }, [location.state]);
-
-  
-
-  
 
   async function connect() {
     if (window.ethereum) {
@@ -204,24 +201,21 @@ function ManualTest() {
   }
 
   async function executeTransaction() {
-  if (!amountInEuros) {
-    alert("Please enter a valid amount in Euros.");
-    return;
-  }
-  const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
-  if (isNaN(amountInEther)) {
-    alert("Invalid amount. Please check your input and the exchange rate.");
-    return;
-  } 
+    if (!amountInEuros) {
+      alert("Please enter a valid amount in Euros.");
+      return;
+    }
+    const amountInEther = parseFloat(amountInEuros) * euroToEtherRate;
+    if (isNaN(amountInEther)) {
+      alert("Invalid amount. Please check your input and the exchange rate.");
+      return;
+    } 
     
-  
-
-  await sendEthersToContract(amountInEther.toFixed(18)); 
+    await sendEthersToContract(amountInEther.toFixed(18)); 
     await withdrawTo(amountInEther.toFixed(18)); 
     
-  console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
-
-}
+    console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
+  }
 
   async function checkLocationAndExecute() {
     if (!navigator.geolocation) {
@@ -229,130 +223,109 @@ function ManualTest() {
       return;
     }
 
-    // navigator.geolocation.getCurrentPosition(
-    //   async (position) => {
-    //     const userLatitude = position.coords.latitude;
-    //     const userLongitude = position.coords.longitude;
-    //     const range = 0.1;
-
-    //     if (
-    //       Math.abs(userLatitude - parseFloat(latitude)) < range &&
-    //       Math.abs(userLongitude - parseFloat(longitude)) < range
-    //     ) {
-    //       setUserState("You are at the right location! Proceeding with Ethereum transaction...");
-    //       console.log("You are at the right location! Proceeding with Ethereum transaction...");
-    //       if (!provider) {
-    //         await connect();
-    //       }
-    //       if (provider) {
-    //         await executeTransaction();
-    //       } else {
-    //         console.error("Failed to initialize provider.");
-    //       }
-    //     } else {
-    //       setUserState("You are not at the right location.");
-    //       console.error("You are not at the right location.");
-    //       // alert("You are not at the right location.");
-    //     }
-    //   },
-    //   () => {
-    //     setUserState("Unable to retrieve your location");
-    //     alert("Unable to retrieve your location");
-    //   }
-    // );
-
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-      const userLatitude = position.coords.latitude;
-      const userLongitude = position.coords.longitude;
+        const userLatitude = position.coords.latitude;
+        const userLongitude = position.coords.longitude;
 
-    // Convert route length from meters to kilometers
-    const routeLengthKm = routeLength / 1000;
+        // Convert route length from meters to kilometers
+        const routeLengthKm = routeLength / 1000;
 
-    // Calculate the range using a single expression
-    const range = routeLengthKm * ((routeLengthKm >= 50) ? 0.01 : 0.05);
+        // Calculate the range using a single expression
+        const range = routeLengthKm * ((routeLengthKm >= 50) ? 0.01 : 0.05);
 
-    // Check if the user is within the required range
-    if (
-      Math.abs(userLatitude - parseFloat(latitude)) < range &&
-      Math.abs(userLongitude - parseFloat(longitude)) < range
-    ) {
-      setUserState("You are at the right location! Proceeding with Ethereum transaction...");
-      console.log("You are at the right location! Proceeding with Ethereum transaction...");
-      if (!provider) {
-        await connect();
+        // Check if the user is within the required range
+        if (
+          Math.abs(userLatitude - parseFloat(latitude)) < range &&
+          Math.abs(userLongitude - parseFloat(longitude)) < range
+        ) {
+          setUserState("You are at the right location! Proceeding with Ethereum transaction...");
+          console.log("You are at the right location! Proceeding with Ethereum transaction...");
+          if (!provider) {
+            await connect();
+          }
+          if (provider) {
+            await executeTransaction();
+          } else {
+            console.error("Failed to initialize provider.");
+          }
+        } else {
+          setUserState("You are not at the right location.");
+          console.error("You are not at the right location.");
+        }
+      },
+      () => {
+        setUserState("Unable to retrieve your location");
+        alert("Unable to retrieve your location");
       }
-      if (provider) {
-        await executeTransaction();
-      } else {
-        console.error("Failed to initialize provider.");
-      }
-    } else {
-      setUserState("You are not at the right location.");
-      console.error("You are not at the right location.");
-    }
-  },
-  () => {
-    setUserState("Unable to retrieve your location");
-    alert("Unable to retrieve your location");
-  }
     );
-}
+  }
 
   return (
     <div className="manual_test">
-      <br />
-      <strong>Amount to be paid: </strong>
-      <input
-        type="number"
-        placeholder="Amount in Euros"
-        value={amountInEuros}
-        onChange={(e) => setAmountInEuros(e.target.value)}
-      />
-      <br />
-      <strong>Select one of the drivers you want to send the money to:</strong>
-      <select value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}>
-        <option value="">Select Recipient (Driver)</option>
-        {recipientAddresses.map((addr) => (
-          <option key={addr.ethereumAddress} value={addr.ethereumAddress}>
-            {addr.ethereumAddress}
-          </option>
-        ))}
-      </select>
-      <br />
+      <div className="input-group">
+        <div>
+          <strong>Amount to be paid: </strong>
+          <input
+            type="number"
+            placeholder="Amount in Euros"
+            value={amountInEuros}
+            onChange={(e) => setAmountInEuros(e.target.value)}
+          />
+        </div>
+        <div>
+          <strong>Select one of the drivers you want to send the money to:</strong>
+          <select value={recipientAddress} onChange={(e) => setRecipientAddress(e.target.value)}>
+            <option value="">Select Recipient (Driver)</option>
+            {recipientAddresses.map((addr) => (
+              <option className="addressesman" key={addr.ethereumAddress} value={addr.ethereumAddress}>
+                {addr.ethereumAddress}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
-      <input
-        type="text"
-        placeholder="Latitude"
-        value={latitude}
-        onChange={(e) => setLatitude(e.target.value)}
-      />
-      <input
-        type="text"
-        placeholder="Longitude"
-        value={longitude}
-        onChange={(e) => setLongitude(e.target.value)}
-      />
-      <br />
-      <strong>Enter the route length in meters</strong>
-      <input
-        type="number"
-        placeholder="Route Length in Meters"
-        value={routeLength}
-        onChange={(e) => setRouteLength(e.target.value)}
-      />
+      <div className="input-group">
+        <div>
+          <input
+            type="text"
+            placeholder="Latitude"
+            value={latitude}
+            onChange={(e) => setLatitude(e.target.value)}
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Longitude"
+            value={longitude}
+            onChange={(e) => setLongitude(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="input-group">
+        <div>
+          <strong>Enter the route length in meters</strong>
+          <input
+            type="number"
+            placeholder="Route Length in Meters"
+            value={routeLength}
+            onChange={(e) => setRouteLength(e.target.value)}
+          />
+        </div>
+      </div>
+
       <p id="userState">{userState}</p>
-      <br />
-      <button onClick={connect}>Connect to wallet</button>
-      <button onClick={executeTransaction}>Proceed with Payment</button>
-      <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
+
+      <div className="button-group">
+        <button onClick={connect}>Connect to wallet</button>
+        <button onClick={executeTransaction}>Proceed with Payment</button>
+        <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
+      </div>
     </div>
   );
-
-      
-        
-      
 }
-
 
 export default ManualTest;

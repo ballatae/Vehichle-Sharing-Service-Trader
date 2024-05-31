@@ -49,7 +49,7 @@ function Signup() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.message); 
+        // alert(result.message); 
         localStorage.setItem("userEthereumAddress", result.ethereumAddress);
         navigate("/login");
       } else {

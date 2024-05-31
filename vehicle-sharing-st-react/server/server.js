@@ -240,7 +240,6 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
 app.post("/api/update-role", authenticateToken, async (req, res) => {
   const { role } = req.body;
   const userId = req.user.id; // Retrieved from decoded token
@@ -270,7 +269,7 @@ app.get("/api/drivers", async (req, res) => {
   try {
     const drivers = await User.find(
       { role: "driver" },
-      "ethereumAddress"
+      "username ethereumAddress"
     ).lean();
     res.json(drivers);
   } catch (error) {

@@ -100,7 +100,7 @@ function Signup() {
       <br />
       <button id="sgnbtn" onClick={handleSignup}>Sign Up</button>
       <p className="already">
-        Already have an account? <Link to="/login">Log In</Link>
+        Already have an account? <Link className="change" to="/login">Log In</Link>
       </p>
       
     </div>

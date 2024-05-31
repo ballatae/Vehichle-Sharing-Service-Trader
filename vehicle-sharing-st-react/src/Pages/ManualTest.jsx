@@ -6,6 +6,10 @@ import { parseEther } from "@ethersproject/units";
 import { getEuroToEthereumRate } from "./currencyConverter";
 import axios from "axios";
 import "./ManualTest.css";
+import image1 from '../photos/1.png';
+import image2 from '../photos/2.png';
+import image3 from '../photos/3.png';
+import image4 from '../photos/4.png';
 
 // Constants
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -113,11 +117,13 @@ function ManualTest() {
   const [amountInEuros, setAmountInEuros] = useState("");
   const [euroToEtherRate, setEuroToEtherRate] = useState(null);
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [routeLength, setRouteLength] = useState(""); 
+  const [routeLength, setRouteLength] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [recipientAddresses, setRecipientAddresses] = useState([]);
   const [userState, setUserState] = useState("");
+  const [progress, setProgress] = useState({ width: "10%", color: "red" });
+  const [currentImage, setCurrentImage] = useState(image1);
 
   useEffect(() => {
     if (location.state) {
@@ -129,10 +135,6 @@ function ManualTest() {
       try {
         const rate = await getEuroToEthereumRate();
         setEuroToEtherRate(rate);
-        
-console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
-        Sofou Building - 40.63747724119382, 22.936779912593263
-        Egnatia 7 - 40.63980161636855, 22.93707937684154`);
       } catch (rateError) {
         console.error("Failed to load the exchange rate:", rateError);
       }
@@ -177,6 +179,8 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
     });
     await transactionResponse.wait();
     setUserState(`Sent ${amountInEther} ETH to the contract.`);
+    setProgress({ width: "50%", color: "orange" });
+    setCurrentImage(image2);
     console.log(`Sent ${amountInEther} ETH to the contract.`);
   }
 
@@ -192,8 +196,9 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
       );
       await transactionResponse.wait();
       setUserState(`Withdrawal of ${amountInEther} ETH to ${recipientAddress} was successful.`);
+      setProgress({ width: "75%", color: "yellow" });
+      setCurrentImage(image3);
       console.log(`Withdrawal of ${amountInEther} ETH to ${recipientAddress} was successful.`);
-      
     } catch (error) {
       console.error("Withdrawal failed:", error);
       alert("Withdrawal failed. Check the console for more information.");
@@ -209,15 +214,26 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
     if (isNaN(amountInEther)) {
       alert("Invalid amount. Please check your input and the exchange rate.");
       return;
-    } 
+    }
     
-    await sendEthersToContract(amountInEther.toFixed(18)); 
-    await withdrawTo(amountInEther.toFixed(18)); 
+    await sendEthersToContract(amountInEther.toFixed(18));
+    await withdrawTo(amountInEther.toFixed(18));
     
+    setUserState("Transactions completed.");
+    setProgress({ width: "100%", color: "green" });
+    setCurrentImage(image4);
     console.log(`Transactions completed with ${amountInEther.toFixed(18)} ETH.`);
   }
 
-  async function checkLocationAndExecute() {
+  async function connectAndExecuteTransaction() {
+    await connect();
+    if (provider) {
+      await executeTransaction();
+    }
+  }
+
+  async function connectAndCheckLocationAndExecute() {
+    await connect();
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
       return;
@@ -241,9 +257,6 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
         ) {
           setUserState("You are at the right location! Proceeding with Ethereum transaction...");
           console.log("You are at the right location! Proceeding with Ethereum transaction...");
-          if (!provider) {
-            await connect();
-          }
           if (provider) {
             await executeTransaction();
           } else {
@@ -260,6 +273,15 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
       }
     );
   }
+
+  const addressText = "Kromila Building - 40.63054328673723, 22.9438582463234, Sofou Building - 40.63747724119382, 22.936779912593263, Egnatia 7 - 40.63980161636855, 22.93707937684154";
+
+const formattedAddress = addressText.split(", ").map((item, index) => (
+  <React.Fragment key={index}>
+    {item}
+    <br />
+  </React.Fragment>
+));
 
   return (
     <div className="manual_test">
@@ -279,7 +301,7 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
             <option value="">Select Recipient (Driver)</option>
             {recipientAddresses.map((addr) => (
               <option className="addressesman" key={addr.ethereumAddress} value={addr.ethereumAddress}>
-                {addr.ethereumAddress}
+                {addr.username}
               </option>
             ))}
           </select>
@@ -317,12 +339,24 @@ console.log(`Kromila Building - 40.63054328673723, 22.9438582463234
         </div>
       </div>
 
-      <p id="userState">{userState}</p>
+      <p className="formattedAddress">Some addresses for testing:</p>
+      <p className="formattedAddress">{formattedAddress}</p>
+      
+
+      {userState && (
+        <>
+          <p id="userState">{userState}</p>
+          <div className="progress-container">
+            <img src={currentImage} alt="Progress" className="progress-image" />
+            <div className="progress-bar" style={{ width: progress.width, backgroundColor: progress.color }}></div>
+          </div>
+        </>
+      )}
 
       <div className="button-group">
         <button onClick={connect}>Connect to wallet</button>
-        <button onClick={executeTransaction}>Proceed with Payment</button>
-        <button onClick={checkLocationAndExecute}>Check Location & Proceed with Payment</button>
+        <button onClick={connectAndExecuteTransaction}>Proceed with Payment</button>
+        <button onClick={connectAndCheckLocationAndExecute}>Check Location & Proceed with Payment</button>
       </div>
     </div>
   );

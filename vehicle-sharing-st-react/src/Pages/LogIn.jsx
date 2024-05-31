@@ -22,7 +22,7 @@ function LogIn() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(result.message); 
+        // alert(result.message); 
         localStorage.setItem("token", result.token);
         navigate("/ethereum-details", {
           state: {
@@ -61,7 +61,7 @@ function LogIn() {
       <br />
       <button id="loginbtn" onClick={handleLogin}>Log In</button>
       <p className="already">
-        Don't have an account? <Link to="/signup">Sign Up</Link>
+        Don't have an account? <Link className="change" to="/signup">Sign Up</Link>
       </p>
     </div>
   );

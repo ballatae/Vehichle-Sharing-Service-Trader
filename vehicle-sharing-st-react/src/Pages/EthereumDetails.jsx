@@ -10,6 +10,10 @@ function EthereumDetails() {
 
   const [copyMessage, setCopyMessage] = useState("");
   const [lastCopiedButton, setLastCopiedButton] = useState("");
+  const [buttonText, setButtonText] = useState({
+    address: "Copy Address",
+    privateKey: "Copy Private Key"
+  });
 
   console.log("Received State in EthereumDetails:", location.state);
 
@@ -65,10 +69,18 @@ function EthereumDetails() {
       () => {
         setCopyMessage(`${type} copied to clipboard!`);
         setLastCopiedButton(type);
+        setButtonText(prevState => ({
+          ...prevState,
+          [type === "Address" ? "address" : "privateKey"]: "Copied"
+        }));
         setTimeout(() => {
           setCopyMessage("");
           setLastCopiedButton("");
-        }, 3000);
+          setButtonText(prevState => ({
+            ...prevState,
+            [type === "Address" ? "address" : "privateKey"]: type === "Address" ? "Copy Address" : "Copy Private Key"
+          }));
+        }, 5000);
       },
       (err) => {
         console.error('Failed to copy: ', err);
@@ -90,7 +102,7 @@ function EthereumDetails() {
           onClick={() => copyToClipboard(ethereumAddress, "Address")}
           style={{ backgroundColor: lastCopiedButton === "Address" ? "green" : "" }}
         >
-          Copy Address
+          {buttonText.address}
         </button>
       </div>
       <div className="details-row">
@@ -102,7 +114,7 @@ function EthereumDetails() {
             onClick={() => copyToClipboard(ethereumPrivateKey, "Private Key")}
             style={{ backgroundColor: lastCopiedButton === "Private Key" ? "green" : "" }}
           >
-            Copy Private Key
+            {buttonText.privateKey}
           </button>
         )}
       </div>
@@ -118,6 +130,3 @@ function EthereumDetails() {
 }
 
 export default EthereumDetails;
-
-
-
